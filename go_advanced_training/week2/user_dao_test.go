@@ -5,6 +5,8 @@ import (
 	"testing"
 
 	"github.com/stretchr/testify/assert"
+
+	_ "github.com/go-sql-driver/mysql"
 )
 
 func init() {
