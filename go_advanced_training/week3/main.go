@@ -35,7 +35,7 @@ func main() {
 		return nil
 	})
 
-	signalChan := make(chan os.Signal)
+	signalChan := make(chan os.Signal, 1)
 	signal.Notify(signalChan, os.Interrupt, syscall.SIGTERM, syscall.SIGQUIT)
 
 	eg.Go(func() error {
