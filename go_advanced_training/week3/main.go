@@ -40,7 +40,9 @@ func main() {
 
 	eg.Go(func() error {
 		select {
-		case <-signalChan:
+		case ch := <-signalChan:
+			log.Println("shutting down gracefully, press again to force terminate.")
+			signal.Reset(ch)
 			ctx, cancel := context.WithTimeout(context.Background(), time.Second*10)
 			defer cancel()
 			return server.Shutdown(ctx)
