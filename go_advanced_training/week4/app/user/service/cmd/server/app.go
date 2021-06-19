@@ -12,27 +12,18 @@ import (
 
 type App struct {
 	grpcServer *server.GrpcServer
-	ctx        context.Context
-	cancel     func()
 }
 
 func newApp(grpc *server.GrpcServer) *App {
-	ctx, cancel := context.WithCancel(context.Background())
 	return &App{
 		grpcServer: grpc,
-		ctx:        ctx,
-		cancel:     cancel,
 	}
 }
 
 func (app *App) Run() error {
-	eg, ctx := errgroup.WithContext(app.ctx)
+	eg, ctx := errgroup.WithContext(context.Background())
 	eg.Go(func() error {
 		return app.grpcServer.Start()
-	})
-	eg.Go(func() error {
-		<-ctx.Done()
-		return app.grpcServer.Stop()
 	})
 	signalChan := make(chan os.Signal, 1)
 	signal.Notify(signalChan, os.Interrupt, syscall.SIGTERM, syscall.SIGQUIT)
@@ -42,7 +33,7 @@ func (app *App) Run() error {
 			return app.Stop()
 
 		case <-ctx.Done():
-			return ctx.Err()
+			return nil
 		}
 	})
 	if err := eg.Wait(); err != nil && !errors.Is(err, context.Canceled) {
@@ -52,6 +43,5 @@ func (app *App) Run() error {
 }
 
 func (app *App) Stop() error {
-	app.cancel()
-	return nil
+	return app.grpcServer.Stop()
 }
