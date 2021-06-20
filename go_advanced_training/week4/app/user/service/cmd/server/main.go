@@ -15,10 +15,11 @@ func main() {
 	if err := config.LoadConfigFromFile(filepath.FromSlash(*configPath), &c); err != nil {
 		panic(err)
 	}
-	app, err := initApp(c.Server, c.Data)
+	app, cleanup, err := initApp(c.Server, c.Data)
 	if err != nil {
 		panic(err)
 	}
+	defer cleanup()
 	err = app.Run()
 	if err != nil {
 		panic(err)

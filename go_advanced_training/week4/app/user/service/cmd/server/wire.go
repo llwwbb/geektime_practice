@@ -11,6 +11,6 @@ import (
 	"github.com/llwwbb/geektime_practice/go_advanced_training/week4/app/user/service/internal/service"
 )
 
-func initApp(*conf.Server, *conf.Data) (*App, error) {
+func initApp(*conf.Server, *conf.Data) (*App, func(), error) {
 	panic(wire.Build(server.ProviderSet, data.ProviderSet, biz.ProviderSet, service.ProviderSet, newApp))
 }

@@ -15,15 +15,17 @@ import (
 
 // Injectors from wire.go:
 
-func initApp(confServer *conf.Server, confData *conf.Data) (*App, error) {
-	dataData, err := data.NewData(confData)
+func initApp(confServer *conf.Server, confData *conf.Data) (*App, func(), error) {
+	dataData, cleanup, err := data.NewData(confData)
 	if err != nil {
-		return nil, err
+		return nil, nil, err
 	}
 	userRepo := data.NewUserRepo(dataData)
 	userUseCase := biz.NewUserUseCase(userRepo)
 	userService := service.NewUserService(userUseCase)
 	grpcServer := server.NewGrpcServer(confServer, userService)
 	app := newApp(grpcServer)
-	return app, nil
+	return app, func() {
+		cleanup()
+	}, nil
 }
